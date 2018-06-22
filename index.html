@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.js"></script>
+    <title>train scheduler</title>
+</head>
+<body>
+    <div class="container">
+        <div class="jumbotron bg-dark text-white text-center">
+            <h1>Train Scheduler</h1>
+            <!-- <p></p> -->
+        </div>
+        <table class="table">
+            <h2 class="card-header bg-dark text-white">Current Train Schedule</h2>
+            <thead class="thead bg-dark text-white">
+              <tr>
+                <th scope="col">Train</th>
+                <th scope="col">Destination</th>
+                <th scope="col">Frequency(min)</th>
+                <th scope="col">Next Arrival</th>
+                <th scope="col">Minutes Away</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- data from firebase gets appended here -->
+            </tbody>
+          </table>
+
+          <form>
+              <h2 class="card-header bg-dark text-white">Add Train</h2>
+            <div class="form-group">
+              <label for="train-name">Train Name</label>
+              <input type="text" class="form-control" id="name" placeholder="Polar Express">
+            </div>
+            <div class="form-group">
+              <label for="destination">Destination</label>
+              <input type="text" class="form-control" id="dest" placeholder="North Pole">
+            </div>
+            <div class="form-group">
+                <label for="time">First Train Time (HH:mm - military)</label>
+                <input class="form-control" id="time" placeholder="HH:mm">
+            </div>
+            <div class="form-group">
+                <label for="rate">Frequency(min)</label>
+                <input type="number" class="form-control" id="rate" placeholder="">
+            </div>
+            <button id="add" type="submit" class="btn btn-dark">Submit</button>
+          </form>
+        </div>
+        <script src="https://www.gstatic.com/firebasejs/4.12.0/firebase.js"></script>
+        <script>
+            // Initialize Firebase
+            var config = {
+              apiKey: "AIzaSyCp_oa4YX93ONEQrXYCzEQNAHzjlpEjY6I",
+              authDomain: "train-scheduler-14e9d.firebaseapp.com",
+              databaseURL: "https://train-scheduler-14e9d.firebaseio.com",
+              projectId: "train-scheduler-14e9d",
+              storageBucket: "train-scheduler-14e9d.appspot.com",
+              messagingSenderId: "906779722293"
+            };
+            firebase.initializeApp(config);
+          
+
+          var database = firebase.database();
+
+          var name;
+          var dest;
+          var time;
+          var rate;
+
+          database.ref().on('child_added', function(snap) {
+                var trainsInfo = snap.val();
+                var addTrain = $('<tr>');
+                console.log(trainsInfo.time);
+                var first = trainsInfo.time;
+                console.log(first);
+                var timeArr = first.split(":");
+                var t = moment().format('HH:mm');
+                console.log(t);
+                var tDiff = moment().diff(moment((trainsInfo.time, 'HH:mm')._i), "minutes");
+                console.log(tDiff);
+                var nextArrival;
+                // var minsAway;
+                addTrain.append($('<th scope="row">' + trainsInfo.name + '</th>'),
+                                   $('<td>' + trainsInfo.dest + '</td>'),
+                                   $('<td>' + trainsInfo.rate + '</td>'));
+                                //    $('<td>' + nextArrival + ' PM</td>'),
+                                //    $('<td>' + minsAway + '</td>'),
+                $('tbody').append(addTrain);
+          });
+
+          $('#add').on('click', function(event) {
+              event.preventDefault();
+
+              name = $('#name').val().trim();
+              dest = $('#dest').val().trim();
+              time = $('#time').val();
+              rate = $('#rate').val();
+
+              database.ref().push({
+                name: name,
+                dest: dest,
+                time: time,
+                rate: rate,
+            });
+
+        });
+        </script>
+</body>
+</html>

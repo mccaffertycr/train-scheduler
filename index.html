@@ -12,7 +12,7 @@
 <body>
     <div class="container">
         <div class="jumbotron bg-dark text-white text-center">
-            <h1>Train Scheduler</h1>
+            <h1 >Train Scheduler</h1>
             <p>calculate your trains next arrival and how many minutes until it arrives</p>
         </div>
         <table class="table">
@@ -33,7 +33,7 @@
 
           <form>
               <h2 class="card-header bg-dark text-white">Add Train</h2>
-            <div class="form-group">
+            <div class="form-group mt-1">
               <label for="train-name">Train Name</label>
               <input type="text" class="form-control" id="name" placeholder="Polar Express">
             </div>
@@ -83,7 +83,7 @@
                 var timeDiffTotal = parseInt(trainsInfo.rate) - timeDiffCalc;
                 console.log(first);
 
-                if(timeDiff >= 0) {
+                if (timeDiff >= 0) {
                     newTime = null;
                     newTime = moment().add(timeDiffTotal, 'minutes').format('HH:mm A');
                 } else {
@@ -94,10 +94,10 @@
 
                 var addTrain = $('<tr>');
                 addTrain.append($('<th scope="row">' + trainsInfo.name + '</th>'),
-                                   $('<td>' + trainsInfo.dest + '</td>'),
-                                   $('<td>' + trainsInfo.rate + '</td>'),
-                                   $('<td>' + newTime + ' </td>'),
-                                   $('<td>' + timeDiffTotal + '</td>'));
+                                $('<td>' + trainsInfo.dest + '</td>'),
+                                $('<td>' + trainsInfo.rate + '</td>'),
+                                $('<td>' + newTime + ' </td>'),
+                                $('<td>' + timeDiffTotal + '</td>'));
                 $('tbody').append(addTrain);
           });
 

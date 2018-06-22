@@ -13,7 +13,7 @@
     <div class="container">
         <div class="jumbotron bg-dark text-white text-center">
             <h1>Train Scheduler</h1>
-            <!-- <p></p> -->
+            <p>calculate your trains next arrival and how many minutes until it arrives</p>
         </div>
         <table class="table">
             <h2 class="card-header bg-dark text-white">Current Train Schedule</h2>
@@ -47,7 +47,7 @@
             </div>
             <div class="form-group">
                 <label for="rate">Frequency(min)</label>
-                <input type="number" class="form-control" id="rate" placeholder="">
+                <input type="number" class="form-control" id="rate" placeholder="00">
             </div>
             <button id="add" type="submit" class="btn btn-dark">Submit</button>
           </form>
@@ -65,43 +65,59 @@
             };
             firebase.initializeApp(config);
           
-
+          // declare variables
           var database = firebase.database();
-
           var name;
           var dest;
           var time;
           var rate;
+          var newTime;
 
           database.ref().on('child_added', function(snap) {
+
                 var trainsInfo = snap.val();
-                var addTrain = $('<tr>');
                 console.log(trainsInfo.time);
-                var first = trainsInfo.time;
+                var first = moment(trainsInfo.time, 'HH:mm A');
+                var timeDiff = moment().diff(moment(first, 'HH:mm A'), 'minutes');
+                var timeDiffCalc = timeDiff % parseInt(trainsInfo.rate);
+                var timeDiffTotal = parseInt(trainsInfo.rate) - timeDiffCalc;
                 console.log(first);
-                var timeArr = first.split(":");
-                var t = moment().format('HH:mm');
-                console.log(t);
-                var tDiff = moment().diff(moment((trainsInfo.time, 'HH:mm')._i), "minutes");
-                console.log(tDiff);
-                var nextArrival;
-                // var minsAway;
+
+                if(timeDiff >= 0) {
+                    newTime = null;
+                    newTime = moment().add(timeDiffTotal, 'minutes').format('HH:mm A');
+                } else {
+                    newTime = null;
+                    newTime = first.format('HH:mm A');
+                    timeDiffTotal = Math.abs(timeDiff - 1);
+                }
+
+                var addTrain = $('<tr>');
                 addTrain.append($('<th scope="row">' + trainsInfo.name + '</th>'),
                                    $('<td>' + trainsInfo.dest + '</td>'),
-                                   $('<td>' + trainsInfo.rate + '</td>'));
-                                //    $('<td>' + nextArrival + ' PM</td>'),
-                                //    $('<td>' + minsAway + '</td>'),
+                                   $('<td>' + trainsInfo.rate + '</td>'),
+                                   $('<td>' + newTime + ' </td>'),
+                                   $('<td>' + timeDiffTotal + '</td>'));
                 $('tbody').append(addTrain);
           });
 
+          // event listener that captures input values and pushes them to firebase
           $('#add').on('click', function(event) {
               event.preventDefault();
-
+              // capture form data in variables
               name = $('#name').val().trim();
               dest = $('#dest').val().trim();
               time = $('#time').val();
               rate = $('#rate').val();
 
+              // reset the forms on the page
+              if (name !== '' && dest !== '' && time !== '' & rate !== '') {
+                $('#name').val('');
+                $('#dest').val('');
+                $('#time').val('');
+                $('#rate').val('');
+              }              
+              // push form data to firebase
               database.ref().push({
                 name: name,
                 dest: dest,
